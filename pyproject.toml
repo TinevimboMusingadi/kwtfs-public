@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kwtfs"
+version = "0.1.0"
+description = "Knowing when to think fast or slow: per-question JEV / direct / CoT mode choice for Qwen3 + LoRA, trained with Tunix"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Tinevimbo Musingadi" }]
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+# Data building, label reports and the mode-value probe (CPU).
+data = ["pandas>=2", "pyarrow", "scikit-learn>=1.3", "tokenizers", "huggingface-hub<1"]
+# Training, profiling and evaluation on TPU (JAX + Tunix). The exact, hash-pinned
+# environment used for every run is requirements-tpu.lock (+ Tunix at TUNIX_REV).
+train = [
+  "kwtfs[data]",
+  "jax==0.10.1",
+  "flax==0.12.8",
+  "optax==0.2.8",
+  "orbax-checkpoint==0.12.7",
+  "qwix==0.1.8",
+  "grain",
+  "ml-dtypes",
+  "safetensors>=0.5,<0.8",
+  "transformers>=4.51,<5",
+  "jaxtyping",
+  "pyyaml",
+  "google-tunix @ git+https://github.com/google/tunix@58caef9cd85fcecf51fdb988c05fbaf4e617359a",
+]
+tpu = ["kwtfs[train]", "jax[tpu]==0.10.1"]
+dev = ["pytest>=7", "pyyaml", "scikit-learn>=1.3", "nbformat", "nbconvert", "ipykernel", "matplotlib"]
+
+[project.urls]
+"Research post" = "https://tinevimbomusingadi.github.io/kwtfs-blog/"
+
+[tool.setuptools.packages.find]
+include = ["kwtfs*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

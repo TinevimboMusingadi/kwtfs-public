@@ -1,0 +1,92 @@
+# GRPO for Qwen3-4B + LoRA: kwtfs.tasks data, kwtfs.rewards (regret reward).
+# Overrides on top of Tunix's cli/base_config.yaml; selected by default by
+# kwtfs.train.grpo (or --config / KWT_CONFIG). Memory settings were sized on
+# spot v5e: one chip (v5litepod-1, 16 GB HBM) for SFT/eval, v5litepod-4 with
+# --mesh 4x1 for RL. Smoke tests override model/steps on the command line.
+
+model_config:
+  model_name: "qwen3-4b"
+  model_id: "Qwen/Qwen3-4B"
+  model_source: "huggingface"
+  model_download_path: "/tmp/models"
+  load_dtype: "bfloat16"
+  dtype: "bfloat16"  # f32 compute OOMs 4B on one chip (profiling smoke run)
+  remat_config: 3  # remat whole decoder layers
+  rng_seed: 0
+  model_display: false
+  lora_config:
+    module_path: ".*q_proj|.*k_proj|.*v_proj|.*o_proj|.*gate_proj|.*up_proj|.*down_proj"
+    rank: 16
+    alpha: 32.0
+  mesh:
+    shape: "(1,1)"
+    axis_names: "('fsdp','tp')"
+
+# actor/reference/rollout configs inherit model_config (Tunix CLI rule).
+# kwtfs.train.grpo.build() makes reference/rollout share the actor mesh.
+
+tokenizer_config:
+  tokenizer_path: "Qwen/Qwen3-4B"
+  tokenizer_type: "huggingface"
+  add_bos: false
+  add_eos: false
+
+data_module: "kwtfs.tasks"  # reads $KWT_RL_DATA (labelled RL split)
+apply_chat_template_to_dataset: false  # kwtfs.tasks renders Qwen3 no-think prompts
+batch_size: 4
+num_batches: 0
+num_train_epochs: 1
+
+rl_training_config:
+  eval_every_n_steps: 1000000
+  max_steps: 150  # ~1 h on v5litepod-4
+  gradient_accumulation_steps: null  # RL derives it from mini/micro batch sizes
+  # One chip (15.75 GB HBM): train / score one prompt group (8 rollouts) at a
+  # time and chunk the vocab-wide logprob computation. The first launch OOMed
+  # by 1.1 GB without these.
+  mini_batch_size: 4
+  train_micro_batch_size: 1
+  rollout_micro_batch_size: 4  # v5litepod-4 has room: decode all 4 groups at once (1 was ~1.5 min/step)
+  compute_logps_micro_batch_size: 4
+  compute_logps_chunk_size: 64
+  checkpoint_root_directory: "/tmp/kwtfs/ckpt"
+  checkpointing_options:
+    max_to_keep: 2
+    save_interval_steps: 25
+  metrics_logging_options:
+    log_dir: "/tmp/kwtfs/logs"
+    flush_every_n_steps: 1
+  actor_optimizer_config:
+    opt_type: "adamw"
+    learning_rate: 3e-5  # LoRA: 3e-6 (run 2) moved weights only ~0.5%
+    schedule_type: "warmup_cosine_decay_schedule"
+    init_value: 0.0
+    peak_value: 3e-5
+    end_value: 3e-6
+    warmup_ratio: 0.05
+    warmup_steps: 10
+    decay_steps: 150
+    b1: 0.9
+    b2: 0.99
+    weight_decay: 0.0
+    max_grad_norm: 1.0
+
+grpo_config:
+  num_generations: 8  # RL runs on v5litepod-4 (a 4B train step needs a 2nd weight copy; see --mesh)
+  num_iterations: 1
+  beta: 0.02
+  epsilon: 0.2
+
+rollout_config:
+  total_generation_steps: 256  # matches the profiling CoT cap
+  kv_cache_size: 768  # prompt 448 + generation 256 + 64
+  max_prompt_length: 448  # 4B training step OOMed by 3 GB at 768; rl.jsonl is pre-filtered to <= 448 (97% of rows)
+  temperature: 1.0
+  top_p: 1.0
+  top_k: 50
+
+rollout_engine: "vanilla"
+offload_to_cpu: false
+verl_compatible: false
+reward_functions:
+  - "kwtfs.rewards"

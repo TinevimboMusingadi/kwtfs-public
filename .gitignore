@@ -1,0 +1,18 @@
+# data and run outputs (raw benchmark downloads are never redistributed)
+/data/
+/runs/
+checkpoints/
+/ckpt/
+*.npz
+*.pkl
+
+# python / tooling
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+.pytest_cache/
+.ipynb_checkpoints/
+.cache/

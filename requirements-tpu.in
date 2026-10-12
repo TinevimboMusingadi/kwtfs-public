@@ -1,0 +1,44 @@
+# Pinned TPU runtime used for every run (Python 3.12, x86_64 Linux):
+#   uv pip compile requirements-tpu.in --python-version 3.12 \
+#     --python-platform x86_64-manylinux_2_31 --generate-hashes --output-file requirements-tpu.lock
+# Tunix itself is installed from git at TUNIX_REV (scripts/vm_startup.sh) with --no-deps;
+# the block below is its own requirement list at that revision.
+jax[tpu]==0.10.1
+flax==0.12.8
+optax==0.2.8
+orbax-checkpoint==0.12.7
+qwix==0.1.8
+safetensors>=0.5,<0.8
+transformers>=4.51,<5
+huggingface-hub<1
+jaxtyping
+google-cloud-storage
+
+# Requirements of google/tunix at TUNIX_REV.
+datasets
+flax>=0.12.5
+fsspec
+google-metrax>=0.2.3
+grain
+hf_transfer
+huggingface_hub
+importlib_resources
+jaxtyping
+jinja2
+kagglehub
+numba
+omegaconf
+orbax-checkpoint>=0.12.0
+pillow
+pylatexenc
+python-dotenv
+perfetto
+qwix>=0.1.6
+sentencepiece
+safetensors<0.8
+sqlalchemy
+sympy
+tensorflow_datasets
+tqdm
+transformers!=4.57.2
+tenacity

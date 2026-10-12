@@ -1,0 +1,21 @@
+{
+  "reviewer": "Claude (model-assisted audit, 2026-10-11); human spot-check pending",
+  "method": "Qwen3-4B with native thinking flagged items it answered against gold at confidence >= 0.9 (all open-ended disagreements). Each flagged human-labelled item was re-solved by hand. Procedural items are gold-by-construction; bev outcome/annotator labels (CTR, wine quality, purchases, toxicity, emotion, citation intent) cannot be adjudicated from the text and stand as the source record.",
+  "fix_gold": {
+    "aqua-train-51388": {"gold": "266.67", "why": "0.25 * 0.90 = 0.225 kg iron per kg ore; 60 / 0.225 = 266.67 (gold said 263.66)"},
+    "gsm8k-train-3715": {"gold": "95", "why": "25 packages * $3 + 70 groups * $2 = $215 revenue - $120 cost = $95 (gold said 115)"}
+  },
+  "drop": {
+    "aqua-train-47276": "correct answer 3/8 is not among the options",
+    "arc-ARC-Challenge-Mercury_7143780": "gold names the controlled variable; the dependent variable is 'monitoring the reaction'",
+    "commonsenseqa-commonsenseqa-967806cbcdb6003f0498ec56d6c93a73": "ambiguous: 'being clear' vs 'personal cleanliness'",
+    "commonsenseqa-commonsenseqa-b1d1d29a372b369de0c98ab65ee49c49": "ambiguous: 'inhaling' vs 'take breath'"
+  },
+  "reviewed_counts": {
+    "aqua_rat": {"flagged": 10, "gold_wrong": 2, "ambiguous": 0, "audited": 119},
+    "gsm8k": {"flagged": 24, "gold_wrong": 1, "ambiguous": 0, "audited": 265},
+    "arc": {"flagged": 6, "gold_wrong": 1, "ambiguous": 1, "audited": 192},
+    "openbookqa": {"flagged": 15, "gold_wrong": 0, "ambiguous": 1, "audited": 146},
+    "commonsenseqa": {"flagged": 32, "gold_wrong": 1, "ambiguous": 14, "audited": 146}
+  }
+}

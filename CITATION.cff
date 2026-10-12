@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this code or its results, please cite the research post."
+title: "Knowing When to Think Fast or Slow at Test Time"
+type: software
+authors:
+  - family-names: Musingadi
+    given-names: Tinevimbo
+version: 0.1.0
+date-released: 2026-10-12
+license: Apache-2.0
+url: "https://tinevimbomusingadi.github.io/kwtfs-blog/"
+repository-code: "https://github.com/TinevimboMusingadi/kwtfs-public"
+keywords:
+  - adaptive computation
+  - chain of thought
+  - reinforcement learning
+  - GRPO
+  - Tunix
+  - JAX
+preferred-citation:
+  type: generic
+  title: "Knowing When to Think Fast or Slow at Test Time"
+  authors:
+    - family-names: Musingadi
+      given-names: Tinevimbo
+  year: 2026
+  url: "https://tinevimbomusingadi.github.io/kwtfs-blog/"
